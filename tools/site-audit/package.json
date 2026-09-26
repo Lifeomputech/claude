@@ -1,0 +1,14 @@
+{
+  "name": "site-audit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mobile-responsiveness and SEO auditor built on Playwright/Chromium.",
+  "bin": { "site-audit": "./audit.mjs" },
+  "scripts": {
+    "audit": "node audit.mjs",
+    "test": "node test/run-tests.mjs"
+  },
+  "engines": { "node": ">=18" },
+  "peerDependencies": { "playwright": ">=1.40" }
+}
