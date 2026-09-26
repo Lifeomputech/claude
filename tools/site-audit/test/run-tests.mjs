@@ -46,6 +46,14 @@ async function startServer() {
       );
       return;
     }
+    if (url.pathname === '/dgr-responsive-repair.css') {
+      const css = await readFile(
+        path.join(here, '..', '..', '..', 'fixes', 'wordpress', 'dgr-responsive-repair.css'),
+      );
+      res.writeHead(200, { 'content-type': 'text/css; charset=UTF-8' });
+      res.end(css);
+      return;
+    }
     if (url.pathname === '/') {
       res.writeHead(200, { 'content-type': MIME['.html'] });
       res.end('<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Fixture index</title></head><body><a href="/clean.html">clean</a></body></html>');
@@ -205,6 +213,70 @@ async function main() {
       'overflowPx=' + cleanPage.breakpoints[0].data.overflowPx,
     );
     check('counts real content', cleanPage.seo.wordCount >= 250, 'words=' + cleanPage.seo.wordCount);
+
+    process.stdout.write('\nWordPress patch set (before/after)\n');
+    const wpBeforeOut = path.join(workDir, 'wp-before');
+    await runAudit(base + '/wp-broken.html', wpBeforeOut);
+    const wpBefore = JSON.parse(await readFile(path.join(wpBeforeOut, 'report.json'), 'utf8'));
+    const beforeIds = new Set((wpBefore.pages[0].findings || []).map((f) => f.id));
+
+    // Defect classes the baseline patch set claims to fix without needing the
+    // site-specific audit. Each must be present before and absent after.
+    const PATCHED = [
+      'viewport-meta-not-device-width',
+      'viewport-zoom-disabled',
+      'horizontal-overflow',
+      'unconstrained-blocks',
+      'tap-targets-too-small',
+      'images-not-fluid',
+      'images-missing-dimensions',
+      'images-missing-alt',
+      'html-lang-missing',
+      'title-too-short',
+      'meta-description-missing',
+      'canonical-missing',
+      'open-graph-incomplete',
+      'structured-data-missing',
+    ];
+    // `text-too-small` is deliberately absent from this list. While the viewport
+    // tag is broken, Chromium's text autosizing boosts the 10px footer print to
+    // ~32px, so it is genuinely not too small on a phone and the check correctly
+    // stays quiet. It becomes a real finding once the viewport is fixed, which
+    // is why the repair stylesheet raises those classes — asserted directly below.
+    for (const id of PATCHED) {
+      check('before: ' + id + ' present', beforeIds.has(id));
+    }
+    check(
+      'before: page scrolls sideways',
+      wpBefore.pages[0].breakpoints[0].data.overflowPx > 1,
+      'overflowPx=' + wpBefore.pages[0].breakpoints[0].data.overflowPx,
+    );
+
+    const wpAfterOut = path.join(workDir, 'wp-after');
+    await runAudit(base + '/wp-repaired.html', wpAfterOut);
+    const wpAfter = JSON.parse(await readFile(path.join(wpAfterOut, 'report.json'), 'utf8'));
+    const afterFindings = wpAfter.pages[0].findings || [];
+    const afterIds = new Set(afterFindings.map((f) => f.id));
+
+    for (const id of PATCHED) {
+      check('after: ' + id + ' cleared', !afterIds.has(id));
+    }
+    check(
+      'after: no horizontal scroll at 320px',
+      wpAfter.pages[0].breakpoints[0].data.overflowPx <= 1,
+      'overflowPx=' + wpAfter.pages[0].breakpoints[0].data.overflowPx,
+    );
+    check(
+      'after: footer print is legible',
+      (wpAfter.pages[0].breakpoints[0].data.smallText || []).length === 0,
+      JSON.stringify(wpAfter.pages[0].breakpoints[0].data.smallText),
+    );
+    const stillSerious = afterFindings.filter((f) => FORBIDDEN_SEVERITIES.has(f.severity));
+    check(
+      'after: nothing above low severity remains',
+      stillSerious.length === 0,
+      stillSerious.map((f) => f.id + '(' + f.severity + ')').join(', '),
+    );
 
     process.stdout.write('\nmarkdown report\n');
     const mdOut = path.join(workDir, 'md');

@@ -94,6 +94,13 @@ test/run-tests.mjs          verification
 Probes only gather data; all judgement lives in the analyzers, so a rule can be
 tuned without touching page instrumentation.
 
+## Applying the fixes
+
+For a WordPress target, `fixes/wordpress/` holds the baseline repair layer —
+the defect classes that do not need the audit to identify. `fixes/wordpress/APPLY.md`
+has the install order, and the suite below proves the patch clears the defects
+it claims to.
+
 ## Tests
 
 ```bash
@@ -105,3 +112,7 @@ the way the report says to build it — runs the real audit against each, and
 asserts that the broken page trips all 23 expected checks while the clean page
 trips nothing above `low` severity. That second half is the important one: it is
 what stops the tool from generating busywork.
+
+It then runs a before/after pass: a WordPress-style page carrying the classic
+defects is audited, and audited again with `fixes/wordpress/` applied, asserting
+every defect class that layer claims to fix is cleared. 71 checks in total.

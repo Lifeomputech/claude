@@ -55,6 +55,17 @@ export function probeResponsive() {
       parseFloat(style.opacity || '1') > 0.01;
   }
 
+  // An element sitting inside a scroll or clip container is contained by
+  // design — a wide table in `overflow-x: auto` is the recommended fix, not a
+  // defect. html/body are excluded because clipping there is the masking
+  // anti-pattern we specifically want to report.
+  function hasClippingAncestor(el) {
+    for (let node = el.parentElement; node && node !== body; node = node.parentElement) {
+      if (getComputedStyle(node).overflowX !== 'visible') return true;
+    }
+    return false;
+  }
+
   const elements = body ? Array.from(body.querySelectorAll('*')) : [];
   // One computed-style read per element; getComputedStyle is the expensive call.
   const styled = [];
@@ -78,6 +89,7 @@ export function probeResponsive() {
     // Fixed elements are painted relative to the viewport and never extend the
     // scrollable document, so they cannot be the cause of horizontal scroll.
     if (style.position === 'fixed') continue;
+    if (hasClippingAncestor(el)) continue;
     if (rect.right > vw + 1 || rect.left < -1) {
       offenders.add(el);
       geometry.set(el, {
@@ -194,6 +206,8 @@ export function probeResponsive() {
   // --------------------------------------------------------- rigid geometry
   const rigid = [];
   for (const { el, style, rect } of styled) {
+    // A `min-width` that only has to fit inside a scroll container is fine.
+    if (hasClippingAncestor(el)) continue;
     const minWidth = style.minWidth.endsWith('px') ? parseFloat(style.minWidth) : 0;
     const inline = el.getAttribute('style') || '';
     const inlineWidth = /(^|;)\s*width\s*:\s*(\d{3,})px/i.exec(inline);
@@ -251,12 +265,7 @@ export function probeResponsive() {
     const style = getComputedStyle(el);
     const rect = el.getBoundingClientRect();
     if (!isVisible(style, rect) || rect.width <= vw + 1) continue;
-    let scrollable = false;
-    let parent = el.parentElement;
-    for (let depth = 0; parent && depth < 3; depth++, parent = parent.parentElement) {
-      const overflowX = getComputedStyle(parent).overflowX;
-      if (overflowX === 'auto' || overflowX === 'scroll') { scrollable = true; break; }
-    }
+    const scrollable = hasClippingAncestor(el);
     wideBlocks.push({
       tag: el.tagName.toLowerCase(),
       selector: selectorFor(el),

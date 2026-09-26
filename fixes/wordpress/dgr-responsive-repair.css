@@ -1,0 +1,276 @@
+/*
+ * dgr-responsive-repair.css
+ * ---------------------------------------------------------------------------
+ * Baseline mobile-responsiveness repair for a WordPress theme.
+ *
+ * Every rule here is either a no-op when the theme already does the right
+ * thing, or scoped to small screens so desktop layout cannot regress. That is
+ * deliberate: this layer is safe to apply before the site-specific audit, and
+ * it fixes the defect classes that are near-universal on WordPress builds.
+ *
+ * Load it LAST so it wins on specificity ties. See APPLY.md.
+ *
+ * Mobile breakpoint is 48em (768px) to match the audit's tablet breakpoint.
+ */
+
+/* ===========================================================================
+ * 1. Replaced content must never exceed its column.
+ *    The single most common cause of sideways scroll. Inert if already set.
+ * ========================================================================= */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  max-width: 100%;
+}
+
+img,
+svg,
+video {
+  height: auto;
+}
+
+/* ===========================================================================
+ * 2. Long unbroken strings (URLs, UN numbers, part codes, email addresses)
+ *    must wrap rather than force the page open.
+ * ========================================================================= */
+body {
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3, h4, h5, h6,
+p, li, dd, dt,
+td, th,
+figcaption,
+blockquote,
+.entry-content a {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+/* Preformatted blocks scroll instead of overflowing. */
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* ===========================================================================
+ * 3. Flex and grid children default to min-width:auto, which makes them
+ *    refuse to shrink below their content. This is why page-builder rows
+ *    overflow on phones.
+ * ========================================================================= */
+@media (max-width: 48em) {
+  .row > *,
+  .wp-block-columns > .wp-block-column,
+  .wp-block-group > *,
+  .elementor-row > .elementor-column,
+  .elementor-container > .elementor-column,
+  .vc_row > .wpb_column,
+  .et_pb_row > .et_pb_column,
+  .fl-row-content > .fl-col {
+    min-width: 0;
+  }
+}
+
+/* ===========================================================================
+ * 4. Neutralise hard-coded pixel widths inside editor/builder content on
+ *    small screens. Scoped to content areas so chrome is untouched.
+ * ========================================================================= */
+@media (max-width: 48em) {
+  .entry-content [style*="width"],
+  .entry-content [width],
+  .page-content [style*="width"],
+  .elementor-widget-container [style*="width"] {
+    max-width: 100% !important;
+  }
+
+  /* min-width beats max-width in CSS, so it has to be reset explicitly. */
+  .entry-content *,
+  .page-content * {
+    min-width: 0;
+  }
+}
+
+/* ===========================================================================
+ * 5. Wide tables scroll inside their own container.
+ *    The wrapper is added by dgr_wrap_content_tables() in functions.php —
+ *    CSS alone cannot introduce an element.
+ * ========================================================================= */
+.dgr-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Hint that there is more to the right. */
+  background:
+    linear-gradient(to right, transparent, transparent),
+    linear-gradient(to left, rgba(0, 0, 0, 0.08), transparent);
+  background-repeat: no-repeat;
+  background-size: 100% 100%, 1.5rem 100%;
+  background-position: 0 0, 100% 0;
+  background-attachment: local, scroll;
+}
+
+.dgr-table-scroll > table {
+  margin: 0;
+  /* Keep columns readable rather than crushing them to fit. */
+  min-width: 36rem;
+}
+
+@media (max-width: 48em) {
+  .dgr-table-scroll > table {
+    font-size: 0.9375rem;
+  }
+}
+
+/* ===========================================================================
+ * 6. Touch targets. WCAG 2.2 SC 2.5.8 requires 24x24 CSS px unless spacing
+ *    compensates; Apple and Material both recommend 44px.
+ *
+ *    Scoped to list-item links, buttons and icon links so links sitting
+ *    inline in prose are left as prose.
+ * ========================================================================= */
+@media (max-width: 48em) {
+  nav li > a,
+  .menu li > a,
+  .nav-menu li > a,
+  .widget li > a,
+  .footer-widgets li > a,
+  .wp-block-navigation-item__content,
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  .wp-block-button__link,
+  .button,
+  .btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding-block: 0.25rem;
+  }
+
+  /* Icon-only links need width as well as height. */
+  .social a,
+  .social-links a,
+  .social-icons a,
+  a[class*="icon-"],
+  a[class*="-icon"] {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Breathing room so adjacent targets are not one blurred hit area. */
+  nav li > a,
+  .menu li > a,
+  .social a {
+    margin-block: 0.125rem;
+  }
+}
+
+/* ===========================================================================
+ * 7. Legibility. Only the classes that habitually fall below 12px are raised,
+ *    rather than overriding the theme's whole type scale.
+ * ========================================================================= */
+html {
+  /* Stop iOS inflating text in landscape. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (max-width: 48em) {
+  small,
+  .legal,
+  .copyright,
+  .site-info,
+  .disclaimer,
+  figcaption,
+  .wp-caption-text,
+  .wp-element-caption,
+  .entry-meta,
+  .post-meta {
+    font-size: max(0.875rem, 14px);
+    line-height: 1.5;
+  }
+}
+
+/* ===========================================================================
+ * 8. Forms. iOS Safari zooms the whole page when a field with a font-size
+ *    under 16px receives focus — the fix is the field, not the viewport tag.
+ * ========================================================================= */
+@media (max-width: 48em) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+    max-width: 100%;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+  select,
+  textarea {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
+/* ===========================================================================
+ * 9. Embeds stay fluid and keep their ratio.
+ * ========================================================================= */
+.wp-block-embed__wrapper iframe,
+.wp-video,
+iframe[src*="youtube"],
+iframe[src*="youtu.be"],
+iframe[src*="vimeo"],
+iframe[src*="google.com/maps"],
+iframe[src*="maps.google"] {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
+
+/* A map reads better taller than a video on a phone. */
+@media (max-width: 48em) {
+  iframe[src*="google.com/maps"],
+  iframe[src*="maps.google"] {
+    aspect-ratio: 4 / 3;
+    min-height: 15rem;
+  }
+}
+
+/* ===========================================================================
+ * 10. Sticky chrome must not eat the phone viewport.
+ * ========================================================================= */
+@media (max-width: 48em) {
+  .site-header.is-sticky,
+  .sticky-header,
+  .fixed-header {
+    position: static;
+  }
+}
+
+/* ===========================================================================
+ * 11. LAST RESORT — leave this commented out.
+ *
+ *     Clipping the overflow hides sideways scroll without fixing it: content
+ *     past the edge becomes unreachable, and the audit reports it as
+ *     "overflowing content is hidden rather than fixed". Fix the element the
+ *     audit names instead.
+ *
+ *     If you must ship it as a stopgap, use `clip` and not `hidden`:
+ *     `hidden` on body makes it a scroll container, which silently breaks
+ *     every `position: sticky` descendant.
+ * ========================================================================= */
+/*
+html,
+body {
+  overflow-x: clip;
+}
+*/

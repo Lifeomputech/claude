@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1024, initial-scale=1, user-scalable=no">
+  <title>Home</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    .entry-content, .site-header, .site-footer { padding: 0 16px; }
+    .row { display: flex; gap: 24px; }
+    .col { flex: 1; }
+    .main-nav ul { list-style: none; display: flex; gap: 2px; margin: 0; padding: 8px 0; }
+    .main-nav a { display: block; padding: 1px 4px; font-size: 13px; }
+    .social a { display: inline-block; width: 16px; height: 16px; text-align: center;
+                font-size: 9px; line-height: 16px; background: #ddd; margin-right: 2px; }
+    .legal { font-size: 10px; color: #666; }
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 6px 14px; white-space: nowrap; }
+    input { font-size: 13px; padding: 2px; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="main-nav">
+      <ul>
+        <li><a href="/services">Services</a></li>
+        <li><a href="/training">Training</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="entry-content">
+    <h1>Dangerous goods compliance, auditing and training</h1>
+
+    <div class="row">
+      <div class="col">
+        <h2>Consulting and auditing</h2>
+        <p>We help transport, warehousing and manufacturing operators meet dangerous
+          goods legislation without slowing their operations down. Our consultants
+          audit current practice, identify the gaps against the regulations that
+          apply to your cargo, and hand over a written remediation plan your team
+          can act on immediately. An audit covers documentation, packaging,
+          labelling, placarding, vehicle equipment and driver competence. We review
+          consignment paperwork against the classification of the goods you actually
+          move, inspect a representative sample of vehicles, and interview the staff
+          responsible for loading and securing the load.</p>
+        <p>You receive a findings register ranked by risk, with the regulation each
+          finding relates to and a practical correction for each one. Most operators
+          close the majority of findings within a single quarter once that register
+          exists, because the argument about what matters first has already been
+          settled by the ranking.</p>
+      </div>
+      <div class="col">
+        <img src="wide.svg">
+      </div>
+    </div>
+
+    <h2>Accredited training</h2>
+    <p>Training runs at our centre or on your site. Courses cover classification,
+      packing, marking and labelling, documentation, loading and segregation, and
+      emergency response. Every delegate is assessed and certificated, and we keep a
+      register so you can prove competence at a roadside inspection or a customer
+      audit. We run refresher sessions timed to the renewal cycle so nobody on your
+      team lapses without warning, and we can schedule sessions around shift
+      patterns so a depot never loses a full day of capacity.</p>
+    <p>Booking enquiries go to
+      <a href="mailto:training.bookings.department@example-compliance-group.co.za">training.bookings.department@example-compliance-group.co.za</a>
+      and we confirm within one working day.</p>
+
+    <h2>Classification reference</h2>
+    <table>
+      <tr><th>UN number</th><th>Proper shipping name</th><th>Class</th><th>Packing group</th><th>Labels</th></tr>
+      <tr><td>1203</td><td>Petrol / Gasoline</td><td>3</td><td>II</td><td>Flammable liquid</td></tr>
+      <tr><td>1830</td><td>Sulphuric acid</td><td>8</td><td>II</td><td>Corrosive</td></tr>
+      <tr><td>1072</td><td>Oxygen, compressed</td><td>2.2</td><td>—</td><td>Non-flammable gas</td></tr>
+    </table>
+
+    <h2>Request an assessment</h2>
+    <form>
+      <label for="company">Company</label>
+      <input type="text" id="company" name="company">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email">
+      <button type="submit">Send</button>
+    </form>
+  </main>
+
+  <footer class="site-footer">
+    <div class="social">
+      <a class="icon-li" href="https://example.com/li" rel="noopener noreferrer" target="_blank" aria-label="LinkedIn">in</a>
+      <a class="icon-fb" href="https://example.com/fb" rel="noopener noreferrer" target="_blank" aria-label="Facebook">fb</a>
+      <a class="icon-yt" href="https://example.com/yt" rel="noopener noreferrer" target="_blank" aria-label="YouTube">yt</a>
+    </div>
+    <p class="legal">Registered in South Africa. All training certificates remain
+      the property of the issuing body until settlement of the invoice in full.</p>
+  </footer>
+</body>
+</html>
