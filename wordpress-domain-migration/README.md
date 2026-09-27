@@ -65,6 +65,37 @@ for `digitalsoftwarevault`.
 - **Matches found** → confirmed, continue below.
 - **No matches** → the cause is something else (see *If that was not it*).
 
+### Or let `verify-migration.sh` do it
+
+`verify-migration.sh` (included here) automates this check and the ones in
+*Verification checklist*. It is **read-only** — it only issues GET/HEAD requests
+and never touches the database — so it is safe to run before and after the fix.
+
+```bash
+chmod +x verify-migration.sh
+./verify-migration.sh
+```
+
+It reports every stale URL grouped by asset kind, marks which ones sit in
+`<head>` (those are the ones breaking your styling), says whether the old site
+is still live or redirecting yet, and checks TLS on both hostnames. Exit code is
+`1` while stale URLs remain and `0` once clean, so you can re-run it after
+Step 2 to confirm the fix landed.
+
+Check more than the homepage, and widen the search once you know the shape of
+the problem:
+
+```bash
+./verify-migration.sh --paths '/,/shop/,/cart/,/checkout/,/about/'
+```
+
+If the machine you are on cannot reach the site, save the page from your browser
+(`Ctrl+S`, "Web Page, HTML only") and audit that file instead:
+
+```bash
+./verify-migration.sh --local saved-homepage.html
+```
+
 Worth knowing: the old Namecheap site is still live. That means some assets may
 still be loading from it, so parts of the site can look deceptively fine. **Do
 not cancel the Namecheap hosting until this is finished and verified** — and
@@ -244,6 +275,11 @@ in place for at least 6–12 months.
 
 ## Verification checklist
 
+Run `./verify-migration.sh` first — it covers the first four items and the
+certificate check automatically, and exits `0` only when the homepage is clean.
+The rest need a browser and a test order.
+
+- [ ] `./verify-migration.sh` exits `0` (no stale URLs on the pages it checks)
 - [ ] View-source on the homepage contains **zero** occurrences of `digitalsoftwarevault`
 - [ ] Homepage is fully styled in a private window
 - [ ] An inner page and a product page load (not 404)
