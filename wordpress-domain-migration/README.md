@@ -168,6 +168,12 @@ now-corrected database values take over. Then check
 regenerates `.htaccess` rewrite rules for the new host. Without it you will
 typically get a working homepage but 404s on every inner page.
 
+> **Using Option B?** Skip this — `wp-url-migrate.php` flushes the rewrite rules
+> itself after applying, which is the same operation this button performs. It
+> also purges WP Rocket / LiteSpeed / W3 Total Cache / WP Super Cache if any of
+> them are active. That means the entire repair can be done **without ever
+> logging in to wp-admin**, which matters if admin access is part of what broke.
+
 ---
 
 ## Step 5 — Clear every cache

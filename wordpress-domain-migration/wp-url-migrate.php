@@ -287,9 +287,31 @@ if ($bbm_apply) {
         wp_cache_flush();
     }
     echo 'Transients cleared and object cache flushed.' . PHP_EOL;
+
+    // Rebuild the permalink rewrite rules. This is exactly what
+    // "Settings > Permalinks > Save Changes" does, so the whole migration
+    // can be completed without ever logging in to wp-admin.
+    if (function_exists('flush_rewrite_rules')) {
+        $misc = ABSPATH . 'wp-admin/includes/misc.php';
+        if (!function_exists('save_mod_rewrite_rules') && file_exists($misc)) {
+            require_once $misc;
+        }
+        flush_rewrite_rules(true);
+        echo 'Permalink rules flushed (.htaccess rebuilt where writable).' . PHP_EOL;
+    }
+
+    // Best-effort purge of the common page caches on shared hosting.
+    $purged = array();
+    if (function_exists('rocket_clean_domain')) { rocket_clean_domain();  $purged[] = 'WP Rocket'; }
+    if (function_exists('w3tc_flush_all'))      { w3tc_flush_all();       $purged[] = 'W3 Total Cache'; }
+    if (function_exists('wp_cache_clear_cache')){ wp_cache_clear_cache(); $purged[] = 'WP Super Cache'; }
+    if (defined('LSCWP_V')) { do_action('litespeed_purge_all'); $purged[] = 'LiteSpeed'; }
+    if ($purged) {
+        echo 'Page cache purged: ' . implode(', ', $purged) . PHP_EOL;
+    }
+
     echo PHP_EOL;
-    echo 'NEXT: remove WP_HOME/WP_SITEURL overrides from wp-config.php if you added them,' . PHP_EOL;
-    echo '      then go to Settings > Permalinks and click Save to rebuild .htaccess.' . PHP_EOL;
+    echo 'NEXT: remove any WP_HOME/WP_SITEURL overrides you added to wp-config.php.' . PHP_EOL;
 }
 
 echo PHP_EOL . '*** DELETE THIS FILE FROM THE SERVER NOW. ***' . PHP_EOL;
